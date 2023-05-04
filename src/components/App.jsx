@@ -1,19 +1,22 @@
 import { useEffect, useState } from 'react';
 import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
-import Footer from './Footer.jsx';
+
 import Header from './Header.jsx';
 import Main from './Main.jsx'
+import Footer from './Footer.jsx';
 import ImagePopup from './ImagePopup.jsx';
 import EditProfilePopup from './EditProfilePopup.jsx';
 import EditAvatarPopup from './EditAvatarPopup.jsx';
 import AddCardPopup from './AddCardPopup.jsx';
 import DeleteCardPopup from './DeleteCardPopup.jsx';
-import { api } from '../utils/api.js';
-import { CurrentUserContext } from '../contexts/CurrentUserContext.jsx';
-import { CardContext } from '../contexts/CardContex.jsx';
+
 import ProtectedRouteElement from './ProtectedRoute.jsx';
 import Login from './Login.jsx';
 import Register from './Register.jsx';
+
+import { api } from '../utils/api.js';
+import { CurrentUserContext } from '../contexts/CurrentUserContext.jsx';
+import { CardContext } from '../contexts/CardContex.jsx';
 
 export default function App() {
 
@@ -28,6 +31,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
 
   const [isLoggedIn, setLoggedIn] = useState(true);
+
   const navigate = useNavigate();
 
   const [currentUser, setCurrentUser] = useState({ name: '', about: '' });
