@@ -13,6 +13,7 @@ import DeleteCardPopup from './DeleteCardPopup.jsx';
 import ProtectedRouteElement from './ProtectedRoute.jsx';
 import Login from './Login.jsx';
 import Register from './Register.jsx';
+import * as auth from '../utils/auth.js';
 
 import { api } from '../utils/api.js';
 import { CurrentUserContext } from '../contexts/CurrentUserContext.jsx';
@@ -30,7 +31,9 @@ export default function App() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const [isLoggedIn, setLoggedIn] = useState(true);
+  const [isLoggedIn, setLoggedIn] = useState(false);
+  const [userData, setUserData] = useState({ email: '', _id: '' });
+  const [token, setToken] = useState('');
 
   const navigate = useNavigate();
 
@@ -38,6 +41,9 @@ export default function App() {
   const [cards, setCards] = useState([]);
 
   useEffect(() => {
+    const jwt = localStorage.getItem('jwt');
+    if (jwt) setToken(jwt);
+
     api.getUserInfo()
       .then((res) => {
         setCurrentUser(res);
@@ -149,14 +155,40 @@ export default function App() {
       })
   }
 
-
-
   function closeAllPopups() {
     setEditAvatarPopupOpen(false);
     setEditProfilePopupOpen(false);
     setEditAddPlacePopupOpen(false);
     setImagePopupOpen(false);
     setDeleteCardPopupOpen(false);
+  }
+
+  function handleLoggedIn() {
+    setLoggedIn(true);
+  }
+
+  function logOut() {
+    localStorage.removeItem('token');
+    setLoggedIn(false);
+    setToken('');
+    setUserData({ email: '', _id: '' });
+    navigate('/sign-in', { replace: true });
+  }
+
+  useEffect(() => {
+    handleTokenCheck();
+  }, [])
+
+  const handleTokenCheck = () => {
+    if (localStorage.getItem('jwt')) {
+      const jwt = localStorage.getItem('jwt');
+      auth.checkToken(jwt).then((res) => {
+        if (res) {
+          setLoggedIn(true);
+          navigate('/', { replace: true })
+        }
+      });
+    };
   }
 
   return (
@@ -166,11 +198,11 @@ export default function App() {
           <Header />
           <Routes>
             <Route path="*" element={isLoggedIn ? <Navigate to="/" /> : <Navigate to="/sign-in" replace />} />
-            <Route path="/sign-in" element={<Login />}/>
-            <Route path="/sign-up" element={<Register />}/>
+            <Route path="/sign-in" element={<Login handleLoggedIn={handleLoggedIn} />} />
+            <Route path="/sign-up" element={<Register />} />
             <Route path="/" element={
-              <ProtectedRouteElement element={
-                <Main
+              <ProtectedRouteElement element={Main}
+                  loggedIn={isLoggedIn}
                   onEditProfile={handleEditProfileClick}
                   onEditAvatar={handleEditAvatarClick}
                   onAddPlace={handleAddPlaceClick}
@@ -178,10 +210,9 @@ export default function App() {
                   onCardDelete={handleDeleteCardClick}
                   onCardLike={handleCardLike}
                 />}
-              />}
-            />
+              />
           </Routes>
-          { isLoggedIn && <Footer />}
+          {isLoggedIn && <Footer />}
           <EditProfilePopup
             isOpen={isEditProfilePopupOpen}
             onClose={closeAllPopups}
