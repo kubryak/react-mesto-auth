@@ -33,7 +33,7 @@ export default function App() {
 
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [email, setEmail] = useState('');
-  const [token, setToken] = useState('');
+
 
   const navigate = useNavigate();
 
@@ -42,17 +42,18 @@ export default function App() {
 
   useEffect(() => {
     const jwt = localStorage.getItem('jwt');
-    if (jwt) setToken(jwt);
-    api.getUserInfo()
-      .then((res) => {
-        setCurrentUser(res);
-      })
-      .catch(err => console.log(err));
-    api.getCards()
-      .then((res) => {
-        setCards(res);
-      })
-      .catch(err => console.log(err));
+    if (jwt) {
+      api.getUserInfo()
+        .then((res) => {
+          setCurrentUser(res);
+        })
+        .catch(err => console.log(err));
+      api.getCards()
+        .then((res) => {
+          setCards(res);
+        })
+        .catch(err => console.log(err));
+    }
   }, [])
 
   useEffect(() => {
@@ -79,7 +80,6 @@ export default function App() {
 
   function handleAddPlaceClick() {
     setEditAddPlacePopupOpen(true);
-
   }
 
   function handleCardClick(card) {
@@ -175,7 +175,7 @@ export default function App() {
 
   useEffect(() => {
     handleTokenCheck();
-  }, [])
+  }, [isLoggedIn])
 
   const handleTokenCheck = () => {
     const jwt = localStorage.getItem('jwt');

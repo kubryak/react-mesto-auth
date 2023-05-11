@@ -28,7 +28,7 @@ const Login = ({
       .then((data) => {
         if (data) {
           handleLoggedIn();
-          setFormValue({email: '', password: ''});
+          setFormValue({ email: '', password: '' });
           navigate('/', { replace: true });
         }
       })
