@@ -3,7 +3,7 @@ import { useState } from 'react';
 import * as auth from '../utils/auth.js';
 import InfoTooltip from './InfoTooltip.jsx';
 
-const Register = ({isOpen, onClose}) => {
+const Register = ({ isOpen, onClose }) => {
 
   const [isInfoTooltipPopupOpen, setInfoTooltipPopupOpen] = useState(false);
 
@@ -15,8 +15,6 @@ const Register = ({isOpen, onClose}) => {
     status: '',
     message: ''
   });
-
-  const navigate = useNavigate();
 
   const [formValue, setFormValue] = useState({
     email: '',
@@ -36,22 +34,23 @@ const Register = ({isOpen, onClose}) => {
     e.preventDefault();
     auth.register(formValue.email, formValue.password)
       .then((res) => {
-        setFormValue({email:'', password:''});
-        setInfoTooltipPopupOpen(true);
-        setRegister({
-          status: true,
-          message: 'Вы успешно зарегистрировались!'
-        })
-        console.log(res);
+        if (res.data) {
+          console.log(res)
+          setFormValue({ email: '', password: '' });
+          setInfoTooltipPopupOpen(true);
+          setRegister({
+            status: true,
+            message: 'Вы успешно зарегистрировались!'
+          })
+        } else {
+          setInfoTooltipPopupOpen(true);
+          setRegister({
+            status: false,
+            message: 'Что-то пошло не так! Попробуйте еще раз.'
+          })
+        };
       })
-      .catch((err) => {
-        setInfoTooltipPopupOpen(true);
-        setRegister({
-          status: false,
-          message: 'Что-то пошло не так! Попробуйте еще раз.'
-        })
-        console.log(err);
-      });
+      .catch(err => console.log(err))
   }
 
   return (

@@ -11,11 +11,9 @@ export default function InfoTooltip({ isOpen, onClose, isRegister }) {
 
   return (
     <section className={`popup popup_type_authorization ${isOpen && ('popup_opened')}`} onMouseDown={handleClickClose}>
-      <div className="popup__figure-container popup__figure-container_type_register">
-        <figure className="popup__figure">
-          <img className="popup__image" src={isRegister.status ? succsessfull : unsuccsessfull} alt={isRegister.message} />
-          <figcaption className="popup__image-description">{isRegister.message}</figcaption>
-        </figure>
+      <div className="popup__container">
+          <img className="popup__auth-image" src={isRegister.status ? succsessfull : unsuccsessfull} alt={isRegister.message} />
+          <h3 className="popup__title popup__title_type_auth">{isRegister.message}</h3>
         <button type="button" className="popup__close-btn popup__close-btn_type_image" onClick={onClose}></button>
       </div>
     </section>
