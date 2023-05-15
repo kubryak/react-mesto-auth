@@ -13,7 +13,7 @@ export default function ImagePopup({ card, isOpen, onClose }) {
           <img className="popup__image" src={card.link} alt={card.name} />
           <figcaption className="popup__image-description">{card.name}</figcaption>
         </figure>
-        <button type="button" className="popup__close-btn popup__close-btn_type_image" onClick={onClose}></button>
+        <button type="button" className="popup__close-btn popup__close-btn_type_image" onClick={onClose} />
       </div>
     </section>
   )

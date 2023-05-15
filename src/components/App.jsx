@@ -13,6 +13,7 @@ import DeleteCardPopup from './DeleteCardPopup.jsx';
 import ProtectedRouteElement from './ProtectedRoute.jsx';
 import Login from './Login.jsx';
 import Register from './Register.jsx';
+import InfoTooltip from './InfoTooltip.jsx';
 import * as auth from '../utils/auth.js';
 
 import { api } from '../utils/api.js';
@@ -26,14 +27,18 @@ export default function App() {
   const [isEditAddPlacePopupOpen, setEditAddPlacePopupOpen] = useState(false);
   const [isImagePopupOpen, setImagePopupOpen] = useState(false);
   const [isDeleteCardPopupOpen, setDeleteCardPopupOpen] = useState(false);
+  const [isInfoTooltipPopupOpen, setInfoTooltipPopupOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
   const [deletedCard, setDeletedCard] = useState({});
+
+  const isOpen = isEditProfilePopupOpen || isEditAvatarPopupOpen || isEditAddPlacePopupOpen || isImagePopupOpen || isDeleteCardPopupOpen;
 
   const [isLoading, setIsLoading] = useState(false);
 
   const [isLoggedIn, setLoggedIn] = useState(false);
+  const [token, setToken] = useState('');
   const [email, setEmail] = useState('');
-
+  const [isRegister, setRegister] = useState(false);
 
   const navigate = useNavigate();
 
@@ -42,18 +47,18 @@ export default function App() {
 
   useEffect(() => {
     const jwt = localStorage.getItem('jwt');
-    if (jwt) {
-      api.getUserInfo()
-        .then((res) => {
-          setCurrentUser(res);
-        })
-        .catch(err => console.log(err));
-      api.getCards()
-        .then((res) => {
-          setCards(res);
-        })
-        .catch(err => console.log(err));
-    }
+    if (jwt) setToken(jwt)
+    api.getUserInfo()
+      .then((res) => {
+        setCurrentUser(res);
+      })
+      .catch(err => console.log(err));
+    api.getCards()
+      .then((res) => {
+        setCards(res);
+      })
+      .catch(err => console.log(err));
+
   }, [])
 
   useEffect(() => {
@@ -62,13 +67,13 @@ export default function App() {
         closeAllPopups()
       }
     }
-    if (isEditProfilePopupOpen || isEditAvatarPopupOpen || isEditAddPlacePopupOpen || isImagePopupOpen || isDeleteCardPopupOpen) {
+    if (isOpen) {
       document.addEventListener('keydown', close)
     }
     return () => {
       document.removeEventListener('keydown', close)
     }
-  }, [isEditProfilePopupOpen, isEditAvatarPopupOpen, isEditAddPlacePopupOpen, isImagePopupOpen, isDeleteCardPopupOpen])
+  }, [isOpen])
 
   function handleEditAvatarClick() {
     setEditAvatarPopupOpen(true);
@@ -92,6 +97,10 @@ export default function App() {
     setDeleteCardPopupOpen(true);
   }
 
+  function handleInfoTooltipClick() {
+    setInfoTooltipPopupOpen(true);
+  }
+
   function handleCardLike(card) {
     const isLiked = card.likes.some(i => i._id === currentUser._id);
 
@@ -106,7 +115,7 @@ export default function App() {
     setIsLoading(true);
     api.deleteCard(deletedCard._id)
       .then(() => {
-        setCards(cards.filter((c) => c._id !== deletedCard._id))
+        setCards((state) => state.filter((item) => item._id !== deletedCard._id))
         closeAllPopups();
       })
       .catch(err => console.log(err))
@@ -160,14 +169,40 @@ export default function App() {
     setEditAddPlacePopupOpen(false);
     setImagePopupOpen(false);
     setDeleteCardPopupOpen(false);
+    setInfoTooltipPopupOpen(false);
   }
 
-  function handleLoggedIn() {
-    setLoggedIn(true);
+  function loginUser({ email, password }) {
+    auth.authorize(email, password)
+      .then((token) => {
+        localStorage.setItem('token', token);
+        setToken(token);
+      })
+      .catch(err => console.log(err));
+  }
+
+  function registerUser({ email, password }) {
+    auth.register(email, password)
+      .then((res) => {
+        if (res.data) {
+          setRegister({
+            status: true,
+            message: 'Вы успешно зарегистрировались!'
+          })
+          navigate('/sign-in', { replace: true });
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+        setRegister({
+          status: false,
+          message: 'Что-то пошло не так! Попробуйте еще раз.'
+        })
+      })
   }
 
   function signOut() {
-    localStorage.removeItem('jwt');
+    localStorage.removeItem('token');
     setLoggedIn(false);
     setEmail('');
     navigate('/sign-in', { replace: true });
@@ -175,10 +210,10 @@ export default function App() {
 
   useEffect(() => {
     handleTokenCheck();
-  }, [isLoggedIn])
+  }, [token])
 
   const handleTokenCheck = () => {
-    const jwt = localStorage.getItem('jwt');
+    const jwt = localStorage.getItem('token');
     if (jwt) {
       auth.checkToken(jwt)
         .then((res) => {
@@ -187,7 +222,7 @@ export default function App() {
           navigate('/', { replace: true })
         })
         .catch(err => console.log(err))
-    };
+    }
   }
 
   return (
@@ -197,8 +232,13 @@ export default function App() {
           <Header email={email} onSignOut={signOut} />
           <Routes>
             <Route path="*" element={isLoggedIn ? <Navigate to="/" /> : <Navigate to="/sign-in" replace />} />
-            <Route path="/sign-in" element={<Login handleLoggedIn={handleLoggedIn} />} />
-            <Route path="/sign-up" element={<Register />} />
+            <Route path="/sign-in" element={<Login onLogin={loginUser} />} />
+            <Route path="/sign-up" element={
+              <Register
+                onRegister={registerUser}
+                onInfoTooltipClick={handleInfoTooltipClick}
+              />}
+            />
             <Route path="/" element={
               <ProtectedRouteElement element={Main}
                 loggedIn={isLoggedIn}
@@ -241,6 +281,12 @@ export default function App() {
             card={selectedCard}
             isOpen={isImagePopupOpen}
             onClose={closeAllPopups}
+          />
+          <InfoTooltip
+            name={'info-tooltip'}
+            isOpen={isInfoTooltipPopupOpen}
+            onClose={closeAllPopups}
+            isRegister={isRegister}
           />
         </div>
       </CardContext.Provider>

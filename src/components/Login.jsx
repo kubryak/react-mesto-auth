@@ -1,38 +1,14 @@
-import { useState } from "react";
-import { useNavigate } from 'react-router-dom';
-import * as auth from '../utils/auth.js';
+import { useForm } from '../hooks/useForm.js';
 
-const Login = ({
-  handleLoggedIn,
-}) => {
-
-  const navigate = useNavigate();
-
-  const [formValue, setFormValue] = useState({
+function Login({ onLogin }) {
+  const { formValue, handleChange } = useForm({
     email: '',
     password: ''
   })
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormValue({
-      ...formValue,
-      [name]: value
-    })
-  }
-
-  const handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
-    auth.authorize(formValue.email, formValue.password)
-      .then((data) => {
-        if (data) {
-          handleLoggedIn();
-          setFormValue({ email: '', password: '' });
-          navigate('/', { replace: true });
-        }
-      })
-      .catch(err => console.log(err));
+    onLogin(formValue);
   }
 
   return (
@@ -46,6 +22,7 @@ const Login = ({
           required
           placeholder="Email"
           onChange={handleChange}
+          value={formValue.email}
         ></input>
         <input
           className="authorization-form__input"
@@ -54,6 +31,7 @@ const Login = ({
           required
           placeholder="Пароль"
           onChange={handleChange}
+          value={formValue.password}
         ></input>
         <button className="authorization-form__button">Войти</button>
       </form>
