@@ -51,7 +51,6 @@ export default function AddCardPopup({ isOpen, onClose, onUpdateCard, buttonText
       <span className="popup__input-error popup__img-error popup__input-error_active">
         {errors.name}
       </span>
-
       <input
         type="url"
         className="popup__input popup__input_type_img-link"

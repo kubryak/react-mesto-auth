@@ -1,11 +1,18 @@
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useFormAndValidation } from '../hooks/useFormAndValidation.js';
 
 const Register = ({ onRegister, onInfoTooltipClick }) => {
 
-  const { values, handleChange, errors } = useFormAndValidation();
+  const { values, handleChange, errors, isValid, setIsValid } = useFormAndValidation();
 
   const { email, password } = values;
+
+  useEffect(() => {
+    if (!email && !password) {
+      setIsValid(false)
+    }
+  }, [email, password])
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -43,7 +50,7 @@ const Register = ({ onRegister, onInfoTooltipClick }) => {
           <span className="authorization__input-error popup__link-error authorization__input-error_active">
             {errors.password}
           </span>
-          <button className="authorization-form__button">Зарегистрироваться</button>
+          <button disabled={!isValid} className={!isValid ? 'authorization-form__button authorization-form__button_disabled' : 'authorization-form__button'}>Зарегистрироваться</button>
           <Link className="authorization__link" to="/sign-in">
             Уже зарегистрировались? Войти
           </Link>

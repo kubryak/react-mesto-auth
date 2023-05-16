@@ -1,10 +1,17 @@
+import { useEffect } from 'react';
 import { useFormAndValidation } from '../hooks/useFormAndValidation.js';
 
 function Login({ onLogin }) {
 
-  const { values, handleChange, errors } = useFormAndValidation();
+  const { values, handleChange, errors, isValid, setIsValid } = useFormAndValidation();
 
   const { email, password } = values;
+
+  useEffect(() => {
+    if (!email && !password) {
+      setIsValid(false)
+    }
+  }, [email, password])
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -39,7 +46,7 @@ function Login({ onLogin }) {
         <span className="authorization__input-error authorization__input-error_active">
           {errors.password}
         </span>
-        <button className="authorization-form__button">Войти</button>
+        <button disabled={!isValid} className={!isValid ? 'authorization-form__button authorization-form__button_disabled' : 'authorization-form__button'}>Войти</button>
       </form>
     </div>
   )

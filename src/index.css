@@ -74,4 +74,4 @@
 @import url(./blocks/authorization-form/__input/authorization-form__input.css);
 @import url(./blocks/authorization-form/__input-error/auhorization__input-error.css);
 @import url(./blocks/authorization-form/__input-error/_active/popup__input-error_active.css);
-
+@import url(./blocks/authorization-form/__button/_disabled/authorization-form__button_disabled.css);
