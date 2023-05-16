@@ -1,14 +1,14 @@
-import { useForm } from '../hooks/useForm.js';
+import { useFormAndValidation } from '../hooks/useFormAndValidation.js';
 
 function Login({ onLogin }) {
-  const { formValue, handleChange } = useForm({
-    email: '',
-    password: ''
-  })
+
+  const { values, handleChange, errors } = useFormAndValidation();
+
+  const { email, password } = values;
 
   function handleSubmit(e) {
     e.preventDefault();
-    onLogin(formValue);
+    onLogin(values);
   }
 
   return (
@@ -22,8 +22,11 @@ function Login({ onLogin }) {
           required
           placeholder="Email"
           onChange={handleChange}
-          value={formValue.email}
+          value={email || ''}
         ></input>
+        <span className="authorization__input-error authorization__input-error_active">
+          {errors.email}
+        </span>
         <input
           className="authorization-form__input"
           name="password"
@@ -31,8 +34,11 @@ function Login({ onLogin }) {
           required
           placeholder="Пароль"
           onChange={handleChange}
-          value={formValue.password}
+          value={password || ''}
         ></input>
+        <span className="authorization__input-error authorization__input-error_active">
+          {errors.password}
+        </span>
         <button className="authorization-form__button">Войти</button>
       </form>
     </div>

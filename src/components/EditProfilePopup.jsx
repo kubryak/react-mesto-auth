@@ -1,43 +1,29 @@
-import { useState, useEffect, useContext } from 'react';
+import { useEffect, useContext } from 'react';
 import PopupWithForm from './PopupWithForm.jsx';
 import { CurrentUserContext } from '../contexts/CurrentUserContext.jsx';
-import { useInput } from '../utils/useInput.js';
+import { useFormAndValidation } from '../hooks/useFormAndValidation.js';
 
 export default function EditProfilePopup({ isOpen, onClose, onUpdateUser, buttonText }) {
 
   const currentUser = useContext(CurrentUserContext);
 
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [errorMessageName, setErrorMessageName] = useState('');
-  const [errorMessageDescription, setErrorMessageDescription] = useState('');
+  const { values, handleChange, errors, isValid, resetForm, setValues, setIsValid } = useFormAndValidation();
 
-  const userName = useInput('', { isEmpty: true, minLength: 2 });
-  const userDescription = useInput('', { isEmpty: true, minLength: 2 });
+  const { name, description } = values;
 
   useEffect(() => {
-    setName(currentUser.name);
-    setDescription(currentUser.about);
-  }, [isOpen]);
+    if (!name && !description) {
+      setIsValid(false)
+    }
+  }, [name, description])
 
   useEffect(() => {
-    userName.setInputValid(true);
-    userDescription.setInputValid(true);
-    setErrorMessageName('');
-    setErrorMessageDescription('');
+    resetForm();
   }, [onClose])
 
-  function handleNameChange(e) {
-    setName(e.target.value);
-    userName.onChange(e);
-    setErrorMessageName(e.target.validationMessage);
-  }
-
-  function handleDescriptionChange(e) {
-    setDescription(e.target.value);
-    userDescription.onChange(e);
-    setErrorMessageDescription(e.target.validationMessage);
-  }
+  useEffect(() => {
+    setValues({ name: currentUser.name, description: currentUser.about });
+  }, [isOpen])
 
   function handleSubmitProfile(e) {
     e.preventDefault();
@@ -45,6 +31,7 @@ export default function EditProfilePopup({ isOpen, onClose, onUpdateUser, button
       name: name,
       about: description
     });
+    resetForm();
   }
 
   return (
@@ -55,27 +42,23 @@ export default function EditProfilePopup({ isOpen, onClose, onUpdateUser, button
       onClose={onClose}
       onSubmit={handleSubmitProfile}
       buttonText={buttonText}
-      onDisabled={!userName.inputValid || !userDescription.inputValid}
+      onDisabled={!isValid}
     >
       <input
         type="text"
         className="popup__input popup__input_type_name"
-        name="name" placeholder="Введите имя"
+        name="name"
+        placeholder="Введите имя"
         id="popup__name"
         value={name || ''}
-        onChange={handleNameChange}
+        onChange={handleChange}
         required
         minLength="2"
         maxLength="40"
-        onFocus={userName.onFocus}
       />
-      {(
-        (userName.isDirty && userName.isEmpty) ||
-        (userName.isDirty && userName.minLengthError)) &&
-        <span className="popup__input-error popup__name-error popup__input-error_active">
-          {errorMessageName}
-        </span>
-      }
+      <span className="popup__input-error popup__name-error popup__input-error_active">
+        {errors.name}
+      </span>
       <input
         type="text"
         className="popup__input popup__input_type_description"
@@ -83,19 +66,14 @@ export default function EditProfilePopup({ isOpen, onClose, onUpdateUser, button
         placeholder="Введите описание"
         id="popup__description"
         value={description || ''}
-        onChange={handleDescriptionChange}
+        onChange={handleChange}
         required
         minLength="2"
         maxLength="200"
-        onFocus={userDescription.onFocus}
       />
-      {(
-        (userDescription.isDirty && userDescription.isEmpty) ||
-        (userDescription.isDirty && userDescription.minLengthError)) &&
-        <span className="popup__input-error popup__description-error popup__input-error_active">
-          {errorMessageDescription}
-        </span>
-      }
+      <span className="popup__input-error popup__description-error popup__input-error_active">
+        {errors.description}
+      </span>
     </PopupWithForm>
   )
 }

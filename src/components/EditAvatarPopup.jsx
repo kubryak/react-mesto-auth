@@ -1,35 +1,30 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import PopupWithForm from "./PopupWithForm";
-import { useInput } from "../utils/useInput";
+import { useFormAndValidation } from '../hooks/useFormAndValidation.js';
 
 export default function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar, buttonText }) {
 
-  const [avatarLink, setAvatarLink] = useState('');
+  const { values, handleChange, errors, isValid, resetForm, setIsValid } = useFormAndValidation();
 
-  const link = useInput('', { isEmpty: true, minLength: 0, isUrl: false });
-
-  const [errorMessageLink, setErrorMessageLink] = useState('');
+  const { link } = values;
 
   useEffect(() => {
-    setErrorMessageLink('');
-    setAvatarLink('');
-    link.setInputValid(false);
-  }, [onClose, onUpdateAvatar])
+    if (!link) {
+      setIsValid(false)
+    }
+  }, [link])
 
-  function handleAvatarLinkChange(e) {
-    setAvatarLink(e.target.value)
-    link.onChange(e);
-    setErrorMessageLink(e.target.validationMessage);
-  }
+  useEffect(() => {
+    resetForm();
+  }, [onClose])
 
   function handleSubmitAvatar(e) {
     e.preventDefault();
     onUpdateAvatar({
-      avatar: avatarLink
+      avatar: link
     });
+    resetForm();
   }
-
-
 
   return (
     <PopupWithForm
@@ -39,27 +34,21 @@ export default function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar, butto
       onClose={onClose}
       onSubmit={handleSubmitAvatar}
       buttonText={buttonText}
-      onDisabled={!link.inputValid}
+      onDisabled={!isValid}
     >
       <input
         type="url"
         className="popup__input popup__input_type_avatar"
-        name="avatarlink"
+        name="link"
         placeholder="Ссылка на картинку"
         id="popup__avatar"
-        value={avatarLink || ''}
-        onChange={handleAvatarLinkChange}
-        onFocus={link.onFocus}
+        value={link || ''}
+        onChange={handleChange}
         required
       />
-      {(
-        (link.isDirty && link.isEmpty) ||
-        (link.isDirty && link.minLengthError) ||
-        (link.isDirty && link.urlError)) &&
-        <span className="popup__input-error popup__link-error popup__input-error_active">
-          {errorMessageLink}
-        </span>
-      }
+      <span className="popup__input-error popup__link-error popup__input-error_active">
+        {errors.link}
+      </span>
     </PopupWithForm>
   )
 }

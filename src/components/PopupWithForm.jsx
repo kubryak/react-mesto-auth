@@ -26,5 +26,4 @@ export default function PopupWithForm({ name, isOpen, title, onClose, buttonText
       </div>
     </section>
   )
-
 }

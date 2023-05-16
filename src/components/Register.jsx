@@ -1,15 +1,15 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from '../hooks/useForm.js';
+import { Link } from 'react-router-dom';
+import { useFormAndValidation } from '../hooks/useFormAndValidation.js';
 
 const Register = ({ onRegister, onInfoTooltipClick }) => {
-  const { formValue, handleChange } = useForm({
-    email: '',
-    password: ''
-  })
+
+  const { values, handleChange, errors } = useFormAndValidation();
+
+  const { email, password } = values;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onRegister(formValue);
+    onRegister(values);
     onInfoTooltipClick();
   }
 
@@ -25,8 +25,12 @@ const Register = ({ onRegister, onInfoTooltipClick }) => {
             required
             placeholder="Email"
             onChange={handleChange}
-            value={formValue.email}
+            value={email || ''}
+            minLength='5'
           ></input>
+          <span className="authorization__input-error authorization__input-error_active">
+            {errors.email}
+          </span>
           <input
             className="authorization-form__input"
             name="password"
@@ -34,8 +38,11 @@ const Register = ({ onRegister, onInfoTooltipClick }) => {
             required
             placeholder="Пароль"
             onChange={handleChange}
-            value={formValue.password}
+            value={password || ''}
           ></input>
+          <span className="authorization__input-error popup__link-error authorization__input-error_active">
+            {errors.password}
+          </span>
           <button className="authorization-form__button">Зарегистрироваться</button>
           <Link className="authorization__link" to="/sign-in">
             Уже зарегистрировались? Войти

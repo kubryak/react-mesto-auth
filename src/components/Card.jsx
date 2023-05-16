@@ -29,7 +29,7 @@ export default function Card({ card, onCardClick, onCardDelete, onCardLike }) {
           <p className="photo-grid__like-amount">{card.likes.length}</p>
         </div>
       </div>
-      {isOwn && <button type="button" className="photo-grid__delete-photo" onClick={handleCardDelete}/>}
+      {isOwn && <button type="button" className="photo-grid__delete-photo" onClick={handleCardDelete} />}
     </li>
   )
 }

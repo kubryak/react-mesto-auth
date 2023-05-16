@@ -1,8 +1,8 @@
 import PopupWithForm from "./PopupWithForm.jsx";
 
-export default function DeleteCardPopup({isOpen, onClose, handleCardDelete, buttonText}) {
-  
-  function handleDeleteCard(e){
+export default function DeleteCardPopup({ isOpen, onClose, handleCardDelete, buttonText }) {
+
+  function handleDeleteCard(e) {
     e.preventDefault();
     handleCardDelete();
   }
